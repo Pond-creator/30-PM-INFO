@@ -1,0 +1,8 @@
+# ห้ามขึ้น GitHub (repo เป็น public)
+gas/
+_local/
+.claude/
+SKILL.md
+*.xlsx
+*.csv
+*.json

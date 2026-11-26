@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<title>PM-INFO Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<section id="login" class="login hidden">
+  <form id="loginForm" class="login-card" autocomplete="off">
+    <div class="logo">PM</div>
+    <h1>PM-INFO Dashboard</h1>
+    <p class="muted">ข้อมูลภายใน — กรุณาใส่รหัสเข้าดู</p>
+    <input id="code" type="password" placeholder="รหัสเข้าดู" autocomplete="current-password" required>
+    <button type="submit" id="loginBtn">เข้าสู่ระบบ</button>
+    <p id="loginMsg" class="login-msg"></p>
+  </form>
+</section>
+
+<!-- ===== APP ===== -->
+<div id="app" class="hidden">
+  <header class="topbar">
+    <div class="brand"><span class="logo sm">PM</span> PM-INFO <span class="muted small">ติดตามลูกค้า</span></div>
+    <div class="filters">
+      <label>ปี <select id="fYear"></select></label>
+      <label>ไตรมาส <select id="fQ">
+        <option value="all">ทั้งปี</option><option value="1">Q1</option><option value="2">Q2</option><option value="3">Q3</option><option value="4">Q4</option>
+      </select></label>
+      <label>เซลล์ <select id="fRep"></select></label>
+      <button id="btnRefresh" class="ghost" title="โหลดข้อมูลล่าสุดจากชีต">↻ อัปเดต</button>
+      <button id="btnLogout" class="ghost">ออก</button>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="overview" class="active">สรุป &amp; คาดการณ์</button>
+    <button data-tab="time">ช่วงเวลา</button>
+    <button data-tab="customers">ลูกค้า</button>
+    <button data-tab="status">สถานะงาน</button>
+    <button data-tab="products">สินค้า</button>
+    <button data-tab="sales">เซลล์</button>
+    <button data-tab="leads">รายการลีด</button>
+  </nav>
+
+  <main>
+    <p id="warn" class="warn hidden"></p>
+
+    <!-- ภาพรวม -->
+    <section class="tab" id="tab-overview">
+      <div class="kpis" id="kpis"></div>
+      <div class="grid2">
+        <div class="card card-good"><h2>✅ สิ่งที่ดี</h2><ul id="insGood" class="insights"></ul></div>
+        <div class="card card-improve"><h2>🔧 สิ่งที่ควรพัฒนา</h2><ul id="insImprove" class="insights"></ul></div>
+      </div>
+      <div class="card">
+        <h2>แนวโน้มกลุ่มสินค้า — กลุ่มไหนกำลังขึ้น / ลง</h2>
+        <p class="note" id="ptNote"></p>
+        <div id="ptSummary"></div>
+        <div id="ptTable" class="scroll-x"></div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <h2>คาดการณ์ลีด 3 เดือนข้างหน้า</h2>
+          <div class="chart h260"><canvas id="cForecast"></canvas></div>
+          <div id="forecastTable"></div>
+          <p class="note" id="forecastNote"></p>
+        </div>
+        <div class="card"><h2>ข้อมูลน่ารู้</h2><ul id="insInfo" class="insights"></ul></div>
+      </div>
+    </section>
+
+    <!-- ช่วงเวลา -->
+    <section class="tab hidden" id="tab-time">
+      <div class="grid2">
+        <div class="card"><h2>ลีดรายไตรมาส (แยกสถานะ)</h2><div class="chart h300"><canvas id="cQuarter"></canvas></div></div>
+        <div class="card"><h2>ลีดรายเดือน &amp; ปิดการขาย</h2><div class="chart h300"><canvas id="cMonth"></canvas></div></div>
+        <div class="card"><h2>วันไหนลูกค้าทักมาเยอะ</h2><div class="chart h260"><canvas id="cWeekday"></canvas></div></div>
+        <div class="card"><h2>ช่วงไหนของเดือน</h2><div class="chart h260"><canvas id="cMonthPart"></canvas></div></div>
+      </div>
+      <div class="card"><h2>แผนที่ความร้อน: เดือน × วันในสัปดาห์</h2><div id="heatmap" class="scroll-x"></div></div>
+    </section>
+
+    <!-- ลูกค้า -->
+    <section class="tab hidden" id="tab-customers">
+      <div class="kpis" id="custKpis"></div>
+      <div class="card">
+        <h2>ลูกค้าที่กลับมาซ้ำ</h2>
+        <p class="note">นับรวมทุกปี · ระบบจับลูกค้าคนเดียวกันจาก ชื่อบริษัท / เบอร์โทร / ชื่อไลน์ (ตัดตัวย่อเซลล์ เช่น "Y-", "P-" ออกก่อนเทียบ)</p>
+        <input id="repeatSearch" class="search" placeholder="ค้นหาชื่อลูกค้า…">
+        <div id="repeatTable" class="scroll-x"></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><h2>เลเวลลูกค้า (ตามทุนจดทะเบียน)</h2><div class="chart h300"><canvas id="cTier"></canvas></div><div id="tierTable"></div></div>
+        <div class="card"><h2>ประเภทธุรกิจ</h2><div class="chart h300"><canvas id="cBiz"></canvas></div><div id="bizTable"></div></div>
+        <div class="card"><h2>ภูมิภาค</h2><div class="chart h260"><canvas id="cRegion"></canvas></div></div>
+        <div class="card"><h2>จังหวัด (Top 15)</h2><div id="provTable"></div></div>
+      </div>
+    </section>
+
+    <!-- สถานะ -->
+    <section class="tab hidden" id="tab-status">
+      <div class="grid2">
+        <div class="card"><h2>สถานะลูกค้า</h2><div class="chart h300"><canvas id="cStatus"></canvas></div><div id="statusTable"></div></div>
+        <div class="card"><h2>เส้นทางลูกค้า (Funnel)</h2><div id="funnel"></div>
+          <h3>Follow to Lead</h3><div id="followTable"></div></div>
+        <div class="card"><h2>สถานะรายเดือน</h2><div class="chart h300"><canvas id="cStatusMonth"></canvas></div></div>
+        <div class="card"><h2>เหตุผล / สิ่งที่เกิดขึ้น (จากหมายเหตุ)</h2><div class="chart h300"><canvas id="cReason"></canvas></div></div>
+      </div>
+      <div class="card"><h2>ข้อเสนอแนะที่บันทึกไว้</h2><div id="suggestList"></div></div>
+    </section>
+
+    <!-- สินค้า -->
+    <section class="tab hidden" id="tab-products">
+      <div class="kpis" id="prodKpis"></div>
+      <div class="grid2">
+        <div class="card"><h2>สินค้าที่ลูกค้าสนใจ</h2><div class="chart h340"><canvas id="cProduct"></canvas></div></div>
+        <div class="card"><h2>ขนาดออเดอร์ (จำนวนชุด)</h2><div class="chart h340"><canvas id="cQtyBucket"></canvas></div></div>
+      </div>
+      <div class="card"><h2>สัดส่วนสินค้าที่ลูกค้าถามรายเดือน (ดูว่ากลุ่มไหนกำลังขึ้น/ลง)</h2><div class="chart h340"><canvas id="cProdShare"></canvas></div>
+        <p class="note">ใช้ข้อมูล 12 เดือนล่าสุดทุกปี · ไม่นับลีดที่ไม่ระบุสินค้า</p></div>
+      <div class="card"><h2>สรุปรายสินค้า</h2><div id="productTable" class="scroll-x"></div></div>
+    </section>
+
+    <!-- เซลล์ -->
+    <section class="tab hidden" id="tab-sales">
+      <div class="card"><h2>สรุปผลงานเซลล์</h2><div id="repTable" class="scroll-x"></div>
+        <p class="note">"เรายังไม่ตอบ" = สถานะ "ไม่ตอบลูกค้า" (ลูกค้าทักมาแต่ฝั่งเรายังไม่ได้ตอบ) · ควรเป็น 0</p></div>
+      <div class="grid2">
+        <div class="card"><h2>สัดส่วนลีดที่ดูแล</h2><div class="chart h300"><canvas id="cRepShare"></canvas></div></div>
+        <div class="card"><h2>สถานะงานแยกเซลล์</h2><div class="chart h300"><canvas id="cRepStatus"></canvas></div></div>
+      </div>
+      <div class="card"><h2>ลีดรายเดือนแยกเซลล์</h2><div class="chart h300"><canvas id="cRepMonth"></canvas></div></div>
+    </section>
+
+    <!-- รายการลีด -->
+    <section class="tab hidden" id="tab-leads">
+      <div class="card">
+        <h2>รายการลีดทั้งหมด <span id="leadCount" class="muted small"></span></h2>
+        <div class="row-tools">
+          <input id="leadSearch" class="search" placeholder="ค้นหา ชื่อ / บริษัท / หมายเหตุ / จังหวัด…">
+          <select id="leadStatus"></select>
+          <label class="chk"><input type="checkbox" id="leadRepeatOnly"> เฉพาะลูกค้าซ้ำ</label>
+        </div>
+        <div id="leadTable" class="scroll-x"></div>
+        <div id="leadPager" class="pager"></div>
+      </div>
+    </section>
+
+    <p class="foot muted small" id="foot"></p>
+  </main>
+</div>
+
+<!-- loading / error -->
+<div id="overlay" class="overlay hidden">
+  <div class="spinner"></div>
+  <p id="overlayText">กำลังโหลดข้อมูล…</p>
+</div>
+<div id="errBox" class="overlay hidden">
+  <div class="err-card">
+    <h3 id="errTitle">โหลดข้อมูลไม่สำเร็จ</h3>
+    <p id="errMsg"></p>
+    <button id="errRetry">ลองใหม่</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" integrity="sha384-bs/nf9FbdNouRbMiFcrcZfLXYPKiPaGVGplVbv7dLGECccEXDW+S3zjqSKR5ZEaD" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
