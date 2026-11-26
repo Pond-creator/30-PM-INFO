@@ -294,7 +294,7 @@
   // ============================================================ stats helpers
   const EST = '<span class="est">(คาดการณ์จากการสนทนา)</span>';
   const EST_TH = '<span class="est est-th">(คาดการณ์)</span>';
-  const markEst = (html) => String(html).replace(/(ปิดการขาย|อัตราปิด|ปิดได้|ปิดง่าย(?:กว่า|สุด)?)/, '$1 ' + EST);
+  const markEst = (html) => String(html).replace(/(ปิดการขาย|อัตราปิด|ปิดได้|ปิดง่าย(?:กว่า|สุด)?)/, '$1 ' + EST + ' ');
   const sgBadge = (g) => `<span class="badge" style="background:${SG_COLOR[g]}">${esc(g)}</span>${g === 'ปิดการขาย' ? ' <span class="est">(คาดการณ์)</span>' : ''}`;
   const isClosed = (r) => r.sg === 'ปิดการขาย';
   const isOpen = (r) => r.sg === 'เสนอราคาแล้ว' || r.sg === 'ติดตามอยู่';
