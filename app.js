@@ -630,7 +630,7 @@
       kpi(fmt(uniqCustomers(rows)), 'ลูกค้า (ไม่นับซ้ำ)', periodLabel()),
       kpi(fmt(newIn), 'ลูกค้าใหม่', 'ทักครั้งแรกในช่วงนี้'),
       kpi(fmt(repeat.length), 'ลูกค้าที่เข้ามาซ้ำ', `${fp(pct(repeat.length, custs.size))} ของลูกค้าที่ระบุตัวได้`, 'good'),
-      kpi(fmt(rows.filter((r) => !r.cid).length), 'ระบุตัวไม่ได้', 'ไม่มีชื่อบริษัท/เบอร์/ไลน์', 'warn'),
+      kpi(fmt(rows.filter((r) => !r.cid).length), 'ระบุตัวไม่ได้', 'ไม่มีบริษัท/เบอร์ และชื่อไลน์สั้นเกินจะยืนยัน', 'warn'),
     ].join('');
 
     // repeat table

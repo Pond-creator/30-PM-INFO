@@ -7,6 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com; img-src 'self' data:; base-uri 'none'; form-action 'none'">
 <title>PM-INFO Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -94,7 +95,7 @@
       <div class="kpis" id="custKpis"></div>
       <div class="card">
         <h2>ลูกค้าที่กลับมาซ้ำ</h2>
-        <p class="note">นับรวมทุกปี · ระบบจับลูกค้าคนเดียวกันจาก ชื่อบริษัท / เบอร์โทร / ชื่อไลน์ (ตัดตัวย่อเซลล์ เช่น "Y-", "P-" ออกก่อนเทียบ)</p>
+        <p class="note">นับรวมทุกปี · จับลูกค้าคนเดียวกันจาก <b>ชื่อบริษัท</b> (ไม่สนเว้นวรรค/จุด/บริษัท-จำกัด, สะกดผิด 1 ตัวได้, เทียบชื่อไทย↔อังกฤษ เช่น โรเด้อร์ แอนด์ ชวาร์ส = Rohde &amp; Schwarz) · <b>เบอร์โทร</b> (ทุกเบอร์ในช่อง, +66 = 0) · <b>ชื่อไลน์</b> (ตัด "Y-" อีโมจิ หมายเหตุท้ายชื่อ · ชื่อเล่นสั้น ๆ ไม่นับ และไม่รวมถ้าคนละบริษัท)</p>
         <input id="repeatSearch" class="search" placeholder="ค้นหาชื่อลูกค้า…">
         <div id="repeatTable" class="scroll-x"></div>
       </div>
